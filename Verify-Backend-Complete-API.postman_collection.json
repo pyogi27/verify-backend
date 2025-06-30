@@ -1,0 +1,934 @@
+{
+  "info": {
+    "name": "Verify Backend Complete API",
+    "description": "Complete collection for all Verify Backend APIs including Application Registration, Key Rotation, Service Addition, Service Update, Service Deletion, Verification Generation, and Verification",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3000",
+      "type": "string"
+    },
+    {
+      "key": "applicationCode",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "apiKey",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "apiSecret",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "requestId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "token",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Health Check",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/",
+          "host": ["{{baseUrl}}"],
+          "path": [""]
+        }
+      }
+    },
+    {
+      "name": "Application Registration",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"data\": [\n    {\n      \"applicationName\": \"TestApp\",\n      \"services\": [\n        {\n          \"serviceType\": \"authMO\",\n          \"verificationConfig\": {\n            \"maxResendCount\": 3,\n            \"maxAttemptCount\": 3,\n            \"tokenLength\": 6,\n            \"tokenPattern\": \"numeric\",\n            \"expiryTime\": 300\n          },\n          \"successCallback\": {\n            \"callbackUrl\": \"https://example.com/success\",\n            \"callbackMethod\": \"POST\",\n            \"payload\": {\n              \"status\": \"success\",\n              \"userId\": \"{{userId}}\"\n            }\n          },\n          \"errorCallback\": {\n            \"callbackUrl\": \"https://example.com/error\",\n            \"callbackMethod\": \"POST\",\n            \"payload\": {\n              \"status\": \"error\",\n              \"errorCode\": \"{{errorCode}}\"\n            }\n          }\n        }\n      ]\n    }\n  ]\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/applications",
+          "host": ["{{baseUrl}}"],
+          "path": ["applications"]
+        }
+      }
+    },
+    {
+      "name": "Key Rotation",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "x-app-auth-key",
+            "value": "{{apiKey}}"
+          },
+          {
+            "key": "x-app-auth-secret",
+            "value": "{{apiSecret}}"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"reason\": \"Security rotation\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/applications/{{applicationCode}}/rotate-key",
+          "host": ["{{baseUrl}}"],
+          "path": ["applications", "{{applicationCode}}", "rotate-key"]
+        }
+      }
+    },
+    {
+      "name": "Service Addition",
+      "item": [
+        {
+          "name": "Add Multiple Services",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "x-app-auth-key",
+                "value": "{{apiKey}}"
+              },
+              {
+                "key": "x-app-auth-secret",
+                "value": "{{apiSecret}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"services\": [\n    {\n      \"serviceType\": \"authEO\",\n      \"verificationConfig\": {\n        \"maxResendCount\": 3,\n        \"maxAttemptCount\": 3,\n        \"tokenLength\": 6,\n        \"tokenPattern\": \"numeric\",\n        \"expiryTime\": 300\n      },\n      \"successCallback\": {\n        \"callbackUrl\": \"https://example.com/success\",\n        \"callbackMethod\": \"POST\",\n        \"payload\": {\n          \"status\": \"success\",\n          \"userId\": \"{{userId}}\"\n        }\n      },\n      \"errorCallback\": {\n        \"callbackUrl\": \"https://example.com/error\",\n        \"callbackMethod\": \"POST\",\n        \"payload\": {\n          \"status\": \"error\",\n          \"errorCode\": \"{{errorCode}}\"\n        }\n      }\n    },\n    {\n      \"serviceType\": \"verifyMO\",\n      \"verificationConfig\": {\n        \"maxResendCount\": 2,\n        \"maxAttemptCount\": 3,\n        \"tokenLength\": 4,\n        \"tokenPattern\": \"numeric\",\n        \"expiryTime\": 180\n      },\n      \"successCallback\": {\n        \"callbackUrl\": \"https://example.com/verify-success\",\n        \"callbackMethod\": \"POST\",\n        \"payload\": {\n          \"status\": \"verified\",\n          \"phoneNumber\": \"{{phoneNumber}}\"\n        }\n      },\n      \"errorCallback\": {\n        \"callbackUrl\": \"https://example.com/verify-error\",\n        \"callbackMethod\": \"POST\",\n        \"payload\": {\n          \"status\": \"verification_failed\",\n          \"errorCode\": \"{{errorCode}}\"\n        }\n      }\n    },\n    {\n      \"serviceType\": \"verifyEL\",\n      \"verificationLinkRoute\": \"https://myapp.com/verify\",\n      \"verificationConfig\": {\n        \"maxResendCount\": 1,\n        \"maxAttemptCount\": 1,\n        \"tokenLength\": 32,\n        \"tokenPattern\": \"alphanumeric\",\n        \"expiryTime\": 3600\n      },\n      \"successCallback\": {\n        \"callbackUrl\": \"https://example.com/link-verify-success\",\n        \"callbackMethod\": \"POST\",\n        \"payload\": {\n          \"status\": \"email_verified\",\n          \"email\": \"{{email}}\"\n        }\n      },\n      \"errorCallback\": {\n        \"callbackUrl\": \"https://example.com/link-verify-error\",\n        \"callbackMethod\": \"POST\",\n        \"payload\": {\n          \"status\": \"link_expired\",\n          \"errorCode\": \"{{errorCode}}\"\n        }\n      }\n    }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/applications/{{applicationCode}}/services",
+              "host": ["{{baseUrl}}"],
+              "path": ["applications", "{{applicationCode}}", "services"]
+            }
+          }
+        },
+        {
+          "name": "Add Single Service (authEO)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "x-app-auth-key",
+                "value": "{{apiKey}}"
+              },
+              {
+                "key": "x-app-auth-secret",
+                "value": "{{apiSecret}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"services\": [\n    {\n      \"serviceType\": \"authEO\",\n      \"verificationConfig\": {\n        \"maxResendCount\": 3,\n        \"maxAttemptCount\": 3,\n        \"tokenLength\": 6,\n        \"tokenPattern\": \"numeric\",\n        \"expiryTime\": 300\n      },\n      \"successCallback\": {\n        \"callbackUrl\": \"https://example.com/success\",\n        \"callbackMethod\": \"POST\",\n        \"payload\": {\n          \"status\": \"success\",\n          \"userId\": \"{{userId}}\"\n        }\n      },\n      \"errorCallback\": {\n        \"callbackUrl\": \"https://example.com/error\",\n        \"callbackMethod\": \"POST\",\n        \"payload\": {\n          \"status\": \"error\",\n          \"errorCode\": \"{{errorCode}}\"\n        }\n      }\n    }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/applications/{{applicationCode}}/services",
+              "host": ["{{baseUrl}}"],
+              "path": ["applications", "{{applicationCode}}", "services"]
+            }
+          }
+        },
+        {
+          "name": "Add Single Service (verifyEO)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "x-app-auth-key",
+                "value": "{{apiKey}}"
+              },
+              {
+                "key": "x-app-auth-secret",
+                "value": "{{apiSecret}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"services\": [\n    {\n      \"serviceType\": \"verifyEO\",\n      \"verificationConfig\": {\n        \"maxResendCount\": 2,\n        \"maxAttemptCount\": 3,\n        \"tokenLength\": 4,\n        \"tokenPattern\": \"numeric\",\n        \"expiryTime\": 180\n      },\n      \"successCallback\": {\n        \"callbackUrl\": \"https://example.com/verify-success\",\n        \"callbackMethod\": \"POST\",\n        \"payload\": {\n          \"status\": \"verified\",\n          \"email\": \"{{email}}\"\n        }\n      },\n      \"errorCallback\": {\n        \"callbackUrl\": \"https://example.com/verify-error\",\n        \"callbackMethod\": \"POST\",\n        \"payload\": {\n          \"status\": \"verification_failed\",\n          \"errorCode\": \"{{errorCode}}\"\n        }\n      }\n    }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/applications/{{applicationCode}}/services",
+              "host": ["{{baseUrl}}"],
+              "path": ["applications", "{{applicationCode}}", "services"]
+            }
+          }
+        },
+        {
+          "name": "Add authMO Service",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "x-app-auth-key",
+                "value": "{{apiKey}}"
+              },
+              {
+                "key": "x-app-auth-secret",
+                "value": "{{apiSecret}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"services\": [\n    {\n      \"serviceType\": \"authMO\",\n      \"verificationConfig\": {\n        \"maxResendCount\": 3,\n        \"maxAttemptCount\": 3,\n        \"tokenLength\": 6,\n        \"tokenPattern\": \"numeric\",\n        \"expiryTime\": 300\n      },\n      \"successCallback\": {\n        \"callbackUrl\": \"https://myapp.com/auth/success\",\n        \"callbackMethod\": \"POST\",\n        \"payload\": {\n          \"status\": \"authenticated\",\n          \"userId\": \"{{userId}}\",\n          \"phoneNumber\": \"{{phoneNumber}}\",\n          \"timestamp\": \"{{timestamp}}\"\n        }\n      },\n      \"errorCallback\": {\n        \"callbackUrl\": \"https://myapp.com/auth/error\",\n        \"callbackMethod\": \"POST\",\n        \"payload\": {\n          \"status\": \"authentication_failed\",\n          \"errorCode\": \"{{errorCode}}\",\n          \"phoneNumber\": \"{{phoneNumber}}\",\n          \"timestamp\": \"{{timestamp}}\"\n        }\n      }\n    }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/applications/{{applicationCode}}/services",
+              "host": ["{{baseUrl}}"],
+              "path": ["applications", "{{applicationCode}}", "services"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Service Update",
+      "item": [
+        {
+          "name": "Update authMO Service",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "x-app-auth-key",
+                "value": "{{apiKey}}"
+              },
+              {
+                "key": "x-app-auth-secret",
+                "value": "{{apiSecret}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"data\": [\n    {\n      \"verificationConfig\": {\n        \"maxResendCount\": 5,\n        \"maxAttemptCount\": 5,\n        \"tokenLength\": 8,\n        \"tokenPattern\": \"N\",\n        \"expiryTime\": 600\n      },\n      \"successCallback\": {\n        \"callbackUrl\": \"https://myapp.com/auth/success-updated\",\n        \"callbackMethod\": \"POST\",\n        \"payload\": {\n          \"status\": \"authenticated\",\n          \"userId\": \"{{userId}}\",\n          \"phoneNumber\": \"{{phoneNumber}}\",\n          \"timestamp\": \"{{timestamp}}\",\n          \"version\": \"2.0\"\n        }\n      },\n      \"errorCallback\": {\n        \"callbackUrl\": \"https://myapp.com/auth/error-updated\",\n        \"callbackMethod\": \"POST\",\n        \"payload\": {\n          \"status\": \"authentication_failed\",\n          \"errorCode\": \"{{errorCode}}\",\n          \"phoneNumber\": \"{{phoneNumber}}\",\n          \"timestamp\": \"{{timestamp}}\",\n          \"retryCount\": \"{{retryCount}}\"\n        }\n      }\n    }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/applications/{{applicationCode}}/services/authMO",
+              "host": ["{{baseUrl}}"],
+              "path": ["applications", "{{applicationCode}}", "services", "authMO"]
+            }
+          }
+        },
+        {
+          "name": "Update authEO Service",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "x-app-auth-key",
+                "value": "{{apiKey}}"
+              },
+              {
+                "key": "x-app-auth-secret",
+                "value": "{{apiSecret}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"data\": [\n    {\n      \"verificationConfig\": {\n        \"maxResendCount\": 4,\n        \"maxAttemptCount\": 4,\n        \"tokenLength\": 6,\n        \"tokenPattern\": \"N\",\n        \"expiryTime\": 450\n      },\n      \"successCallback\": {\n        \"callbackUrl\": \"https://myapp.com/email/auth/success\",\n        \"callbackMethod\": \"POST\",\n        \"payload\": {\n          \"status\": \"authenticated\",\n          \"userId\": \"{{userId}}\",\n          \"email\": \"{{email}}\",\n          \"timestamp\": \"{{timestamp}}\"\n        }\n      },\n      \"errorCallback\": {\n        \"callbackUrl\": \"https://myapp.com/email/auth/error\",\n        \"callbackMethod\": \"POST\",\n        \"payload\": {\n          \"status\": \"authentication_failed\",\n          \"errorCode\": \"{{errorCode}}\",\n          \"email\": \"{{email}}\",\n          \"timestamp\": \"{{timestamp}}\"\n        }\n      }\n    }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/applications/{{applicationCode}}/services/authEO",
+              "host": ["{{baseUrl}}"],
+              "path": ["applications", "{{applicationCode}}", "services", "authEO"]
+            }
+          }
+        },
+        {
+          "name": "Update verifyMO Service",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "x-app-auth-key",
+                "value": "{{apiKey}}"
+              },
+              {
+                "key": "x-app-auth-secret",
+                "value": "{{apiSecret}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"data\": [\n    {\n      \"verificationConfig\": {\n        \"maxResendCount\": 3,\n        \"maxAttemptCount\": 4,\n        \"tokenLength\": 4,\n        \"tokenPattern\": \"N\",\n        \"expiryTime\": 300\n      },\n      \"successCallback\": {\n        \"callbackUrl\": \"https://myapp.com/verify/mobile/success\",\n        \"callbackMethod\": \"POST\",\n        \"payload\": {\n          \"status\": \"verified\",\n          \"phoneNumber\": \"{{phoneNumber}}\",\n          \"timestamp\": \"{{timestamp}}\"\n        }\n      },\n      \"errorCallback\": {\n        \"callbackUrl\": \"https://myapp.com/verify/mobile/error\",\n        \"callbackMethod\": \"POST\",\n        \"payload\": {\n          \"status\": \"verification_failed\",\n          \"errorCode\": \"{{errorCode}}\",\n          \"phoneNumber\": \"{{phoneNumber}}\",\n          \"timestamp\": \"{{timestamp}}\"\n        }\n      }\n    }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/applications/{{applicationCode}}/services/verifyMO",
+              "host": ["{{baseUrl}}"],
+              "path": ["applications", "{{applicationCode}}", "services", "verifyMO"]
+            }
+          }
+        },
+        {
+          "name": "Update verifyEO Service",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "x-app-auth-key",
+                "value": "{{apiKey}}"
+              },
+              {
+                "key": "x-app-auth-secret",
+                "value": "{{apiSecret}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"data\": [\n    {\n      \"verificationConfig\": {\n        \"maxResendCount\": 2,\n        \"maxAttemptCount\": 3,\n        \"tokenLength\": 6,\n        \"tokenPattern\": \"N\",\n        \"expiryTime\": 240\n      },\n      \"successCallback\": {\n        \"callbackUrl\": \"https://myapp.com/verify/email/success\",\n        \"callbackMethod\": \"POST\",\n        \"payload\": {\n          \"status\": \"verified\",\n          \"email\": \"{{email}}\",\n          \"timestamp\": \"{{timestamp}}\"\n        }\n      },\n      \"errorCallback\": {\n        \"callbackUrl\": \"https://myapp.com/verify/email/error\",\n        \"callbackMethod\": \"POST\",\n        \"payload\": {\n          \"status\": \"verification_failed\",\n          \"errorCode\": \"{{errorCode}}\",\n          \"email\": \"{{email}}\",\n          \"timestamp\": \"{{timestamp}}\"\n        }\n      }\n    }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/applications/{{applicationCode}}/services/verifyEO",
+              "host": ["{{baseUrl}}"],
+              "path": ["applications", "{{applicationCode}}", "services", "verifyEO"]
+            }
+          }
+        },
+        {
+          "name": "Update verifyEL Service",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "x-app-auth-key",
+                "value": "{{apiKey}}"
+              },
+              {
+                "key": "x-app-auth-secret",
+                "value": "{{apiSecret}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"data\": [\n    {\n      \"verificationLinkRoute\": \"https://myapp.com/verify-email\",\n      \"verificationConfig\": {\n        \"maxResendCount\": 1,\n        \"maxAttemptCount\": 1,\n        \"tokenLength\": 64,\n        \"tokenPattern\": \"A\",\n        \"expiryTime\": 7200\n      },\n      \"successCallback\": {\n        \"callbackUrl\": \"https://myapp.com/verify/link/success\",\n        \"callbackMethod\": \"POST\",\n        \"payload\": {\n          \"status\": \"email_verified\",\n          \"email\": \"{{email}}\",\n          \"timestamp\": \"{{timestamp}}\",\n          \"verificationMethod\": \"link\"\n        }\n      },\n      \"errorCallback\": {\n        \"callbackUrl\": \"https://myapp.com/verify/link/error\",\n        \"callbackMethod\": \"POST\",\n        \"payload\": {\n          \"status\": \"link_expired\",\n          \"errorCode\": \"{{errorCode}}\",\n          \"email\": \"{{email}}\",\n          \"timestamp\": \"{{timestamp}}\"\n        }\n      }\n    }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/applications/{{applicationCode}}/services/verifyEL",
+              "host": ["{{baseUrl}}"],
+              "path": ["applications", "{{applicationCode}}", "services", "verifyEL"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Service Deletion",
+      "item": [
+        {
+          "name": "Delete authMO Service",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "x-app-auth-key",
+                "value": "{{apiKey}}"
+              },
+              {
+                "key": "x-app-auth-secret",
+                "value": "{{apiSecret}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/applications/{{applicationCode}}/services/authMO",
+              "host": ["{{baseUrl}}"],
+              "path": ["applications", "{{applicationCode}}", "services", "authMO"]
+            }
+          }
+        },
+        {
+          "name": "Delete authEO Service",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "x-app-auth-key",
+                "value": "{{apiKey}}"
+              },
+              {
+                "key": "x-app-auth-secret",
+                "value": "{{apiSecret}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/applications/{{applicationCode}}/services/authEO",
+              "host": ["{{baseUrl}}"],
+              "path": ["applications", "{{applicationCode}}", "services", "authEO"]
+            }
+          }
+        },
+        {
+          "name": "Delete verifyMO Service",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "x-app-auth-key",
+                "value": "{{apiKey}}"
+              },
+              {
+                "key": "x-app-auth-secret",
+                "value": "{{apiSecret}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/applications/{{applicationCode}}/services/verifyMO",
+              "host": ["{{baseUrl}}"],
+              "path": ["applications", "{{applicationCode}}", "services", "verifyMO"]
+            }
+          }
+        },
+        {
+          "name": "Delete verifyEO Service",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "x-app-auth-key",
+                "value": "{{apiKey}}"
+              },
+              {
+                "key": "x-app-auth-secret",
+                "value": "{{apiSecret}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/applications/{{applicationCode}}/services/verifyEO",
+              "host": ["{{baseUrl}}"],
+              "path": ["applications", "{{applicationCode}}", "services", "verifyEO"]
+            }
+          }
+        },
+        {
+          "name": "Delete verifyEL Service",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "x-app-auth-key",
+                "value": "{{apiKey}}"
+              },
+              {
+                "key": "x-app-auth-secret",
+                "value": "{{apiSecret}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/applications/{{applicationCode}}/services/verifyEL",
+              "host": ["{{baseUrl}}"],
+              "path": ["applications", "{{applicationCode}}", "services", "verifyEL"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Verification Generation",
+      "item": [
+        {
+          "name": "Generate authMO Verification",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "x-app-auth-key",
+                "value": "{{apiKey}}"
+              },
+              {
+                "key": "x-app-auth-secret",
+                "value": "{{apiSecret}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"data\": [\n    {\n      \"serviceType\": \"authMO\",\n      \"userIdentity\": \"+1234567890\"\n    }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/applications/{{applicationCode}}/generate-verification",
+              "host": ["{{baseUrl}}"],
+              "path": ["applications", "{{applicationCode}}", "generate-verification"]
+            }
+          }
+        },
+        {
+          "name": "Generate authEO Verification",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "x-app-auth-key",
+                "value": "{{apiKey}}"
+              },
+              {
+                "key": "x-app-auth-secret",
+                "value": "{{apiSecret}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"data\": [\n    {\n      \"serviceType\": \"authEO\",\n      \"userIdentity\": \"user@example.com\"\n    }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/applications/{{applicationCode}}/generate-verification",
+              "host": ["{{baseUrl}}"],
+              "path": ["applications", "{{applicationCode}}", "generate-verification"]
+            }
+          }
+        },
+        {
+          "name": "Generate verifyMO Verification",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "x-app-auth-key",
+                "value": "{{apiKey}}"
+              },
+              {
+                "key": "x-app-auth-secret",
+                "value": "{{apiSecret}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"data\": [\n    {\n      \"serviceType\": \"verifyMO\",\n      \"userIdentity\": \"+9876543210\"\n    }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/applications/{{applicationCode}}/generate-verification",
+              "host": ["{{baseUrl}}"],
+              "path": ["applications", "{{applicationCode}}", "generate-verification"]
+            }
+          }
+        },
+        {
+          "name": "Generate verifyEO Verification",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "x-app-auth-key",
+                "value": "{{apiKey}}"
+              },
+              {
+                "key": "x-app-auth-secret",
+                "value": "{{apiSecret}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"data\": [\n    {\n      \"serviceType\": \"verifyEO\",\n      \"userIdentity\": \"verify@example.com\"\n    }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/applications/{{applicationCode}}/generate-verification",
+              "host": ["{{baseUrl}}"],
+              "path": ["applications", "{{applicationCode}}", "generate-verification"]
+            }
+          }
+        },
+        {
+          "name": "Generate verifyEL Verification",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "x-app-auth-key",
+                "value": "{{apiKey}}"
+              },
+              {
+                "key": "x-app-auth-secret",
+                "value": "{{apiSecret}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"data\": [\n    {\n      \"serviceType\": \"verifyEL\",\n      \"userIdentity\": \"link@example.com\"\n    }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/applications/{{applicationCode}}/generate-verification",
+              "host": ["{{baseUrl}}"],
+              "path": ["applications", "{{applicationCode}}", "generate-verification"]
+            }
+          }
+        },
+        {
+          "name": "Generate Multiple Verifications",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "x-app-auth-key",
+                "value": "{{apiKey}}"
+              },
+              {
+                "key": "x-app-auth-secret",
+                "value": "{{apiSecret}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"data\": [\n    {\n      \"serviceType\": \"authMO\",\n      \"userIdentity\": \"+1111111111\"\n    },\n    {\n      \"serviceType\": \"authEO\",\n      \"userIdentity\": \"auth1@example.com\"\n    },\n    {\n      \"serviceType\": \"verifyMO\",\n      \"userIdentity\": \"+2222222222\"\n    },\n    {\n      \"serviceType\": \"verifyEO\",\n      \"userIdentity\": \"verify1@example.com\"\n    },\n    {\n      \"serviceType\": \"verifyEL\",\n      \"userIdentity\": \"link1@example.com\"\n    }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/applications/{{applicationCode}}/generate-verification",
+              "host": ["{{baseUrl}}"],
+              "path": ["applications", "{{applicationCode}}", "generate-verification"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Verification",
+      "item": [
+        {
+          "name": "Verify Single Token",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "x-app-auth-key",
+                "value": "{{apiKey}}"
+              },
+              {
+                "key": "x-app-auth-secret",
+                "value": "{{apiSecret}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"data\": [\n    {\n      \"requestId\": \"{{requestId}}\",\n      \"token\": \"{{token}}\"\n    }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/applications/{{applicationCode}}/verify",
+              "host": ["{{baseUrl}}"],
+              "path": ["applications", "{{applicationCode}}", "verify"]
+            }
+          }
+        },
+        {
+          "name": "Verify Multiple Tokens",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "x-app-auth-key",
+                "value": "{{apiKey}}"
+              },
+              {
+                "key": "x-app-auth-secret",
+                "value": "{{apiSecret}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"data\": [\n    {\n      \"requestId\": \"{{requestId}}\",\n      \"token\": \"{{token}}\"\n    },\n    {\n      \"requestId\": \"another-request-id\",\n      \"token\": \"another-token\"\n    }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/applications/{{applicationCode}}/verify",
+              "host": ["{{baseUrl}}"],
+              "path": ["applications", "{{applicationCode}}", "verify"]
+            }
+          }
+        },
+        {
+          "name": "Verify with Invalid Token",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "x-app-auth-key",
+                "value": "{{apiKey}}"
+              },
+              {
+                "key": "x-app-auth-secret",
+                "value": "{{apiSecret}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"data\": [\n    {\n      \"requestId\": \"{{requestId}}\",\n      \"token\": \"000000\"\n    }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/applications/{{applicationCode}}/verify",
+              "host": ["{{baseUrl}}"],
+              "path": ["applications", "{{applicationCode}}", "verify"]
+            }
+          }
+        },
+        {
+          "name": "Verify with Invalid Request ID",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "x-app-auth-key",
+                "value": "{{apiKey}}"
+              },
+              {
+                "key": "x-app-auth-secret",
+                "value": "{{apiSecret}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"data\": [\n    {\n      \"requestId\": \"invalid-request-id\",\n      \"token\": \"{{token}}\"\n    }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/applications/{{applicationCode}}/verify",
+              "host": ["{{baseUrl}}"],
+              "path": ["applications", "{{applicationCode}}", "verify"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Resend Verification",
+      "item": [
+        {
+          "name": "Resend Single Verification",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "x-app-auth-key",
+                "value": "{{apiKey}}"
+              },
+              {
+                "key": "x-app-auth-secret",
+                "value": "{{apiSecret}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"data\": [\n    {\n      \"requestId\": \"{{requestId}}\"\n    }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/applications/{{applicationCode}}/resend-verification",
+              "host": ["{{baseUrl}}"],
+              "path": ["applications", "{{applicationCode}}", "resend-verification"]
+            }
+          }
+        },
+        {
+          "name": "Resend Multiple Verifications",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "x-app-auth-key",
+                "value": "{{apiKey}}"
+              },
+              {
+                "key": "x-app-auth-secret",
+                "value": "{{apiSecret}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"data\": [\n    {\n      \"requestId\": \"{{requestId}}\"\n    },\n    {\n      \"requestId\": \"another-request-id\"\n    }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/applications/{{applicationCode}}/resend-verification",
+              "host": ["{{baseUrl}}"],
+              "path": ["applications", "{{applicationCode}}", "resend-verification"]
+            }
+          }
+        },
+        {
+          "name": "Resend with Invalid Request ID",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "x-app-auth-key",
+                "value": "{{apiKey}}"
+              },
+              {
+                "key": "x-app-auth-secret",
+                "value": "{{apiSecret}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"data\": [\n    {\n      \"requestId\": \"invalid-request-id\"\n    }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/applications/{{applicationCode}}/resend-verification",
+              "host": ["{{baseUrl}}"],
+              "path": ["applications", "{{applicationCode}}", "resend-verification"]
+            }
+          }
+        },
+        {
+          "name": "Resend Expired Request",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "x-app-auth-key",
+                "value": "{{apiKey}}"
+              },
+              {
+                "key": "x-app-auth-secret",
+                "value": "{{apiSecret}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"data\": [\n    {\n      \"requestId\": \"expired-request-id\"\n    }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/applications/{{applicationCode}}/resend-verification",
+              "host": ["{{baseUrl}}"],
+              "path": ["applications", "{{applicationCode}}", "resend-verification"]
+            }
+          }
+        },
+        {
+          "name": "Resend Already Verified Request",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "x-app-auth-key",
+                "value": "{{apiKey}}"
+              },
+              {
+                "key": "x-app-auth-secret",
+                "value": "{{apiSecret}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"data\": [\n    {\n      \"requestId\": \"verified-request-id\"\n    }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/applications/{{applicationCode}}/resend-verification",
+              "host": ["{{baseUrl}}"],
+              "path": ["applications", "{{applicationCode}}", "resend-verification"]
+            }
+          }
+        }
+      ]
+    }
+  ]
+} 
